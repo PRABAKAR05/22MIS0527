@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const knapsack = require("./scheduler");
 const axios = require("axios");
+const Log = require("../logging_middleware/logger");
 
 const BASE_URL = process.env.BASE_URL;
 const TOKEN = process.env.TOKEN;
@@ -27,6 +28,8 @@ async function fetchData() {
         const depots = depotsResponse.data.depots;
 
         const tasks = vehiclesResponse.data.vehicles;
+
+        Log("backend", "info", "service", `Fetched ${depots.length} depots, ${tasks.length} tasks`);
 
         for (const depot of depots) {
 
@@ -63,11 +66,19 @@ async function fetchData() {
                 );
 
             });
+
+            Log(
+                "backend",
+                "info",
+                "service",
+                `Depot${depot.ID}:${result.selectedTasks.length}tasks,impact${result.maxImpact}`
+            );
         }
 
     } catch (error) {
 
         console.log(error.message);
+        Log("backend", "error", "service", "Scheduler execution failed");
     }
 }
 
